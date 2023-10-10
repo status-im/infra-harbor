@@ -12,3 +12,18 @@ data "pass_password" "cloudflare_email" {
 data "pass_password" "cloudflare_account" {
   path = "cloud/Cloudflare/account"
 }
+
+/* Token for interacting with DigitalOcean API. */
+data "pass_password" "digitalocean_token" {
+  path = "cloud/DigitalOcean/token"
+}
+
+/* Access key for Digital Ocean Spaces API. */
+data "pass_password" "digitalocean_spaces_id" {
+  path = "cloud/DigitalOcean/spaces-id"
+}
+
+/* Secret key for Digital Ocean Spaces API. */
+data "pass_password" "digitalocean_spaces_key" {
+  path = "cloud/DigitalOcean/spaces-key"
+}
