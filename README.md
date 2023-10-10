@@ -1,22 +1,10 @@
 # Description
 
-### :warning: Replace with actual description!
+This repo deploy [harbor}(https://goharbor.io/) registry.
 
->This repo defines a standard template for new Status infrastructure repositories.
->
->Key things to change:
->
->- Update `README.md`
->- Terraform
->    - Change `path` in `main.tf` to match new fleet
->    - Add necessary providers in `providers.tf`
->    - Add necessary secrets in `secrets.tf`
->    - Adjust or remove `workspaces.tf`
->    - Adjust `versions.tf`
->- Ansible
->    - Extend `ansible/group_vars/all.yml`
->    - Or add a dedicated `group_vars` file
->    - Create the `ansible/main.yml` playbook
+## Endpoints
+
+* https://harbor.status.im: to access the UI.
 
 # Repo Usage
 

@@ -1,0 +1,28 @@
+---
+- name: Create Consul service definition
+  include_role: name=consul-service
+  vars:
+    consul_config_name: '{{ harbor_service_name }}'
+    consul_services:
+      - name: '{{ harbor_service_name }}'
+        id: '{{ harbor_service_name }}'
+        tags: '{{ harbor_consul_tags }}'
+        address: '{{ ansible_local.wireguard.vpn_ip }}'
+        meta:
+          proxy_fqdn: '{{ harbor_domain | mandatory }}'
+        port: '{{ harbor_proxy_cont_port }}'
+        checks:
+          - id: '{{ harbor_service_name }}'
+            name: harbor Healthcheck
+            type: http
+            http: 'http://localhost:{{ harbor_proxy_cont_port }}/health'
+      #      - name: '{{ harbor_service_name }}-metrics'
+      #        id: '{{ harbor_service_name}}-metrics'
+      #        tags: '{{ harbor_consul_tags }}'
+      #        port: '{{ harbor_statsd_exporter_port }}'
+      #        address: '{{ ansible_local.wireguard.vpn_ip }}'
+      #        checks:
+      #          - id: '{{ harbor_service_name }}-metrics'
+      #            name: harbor metrics
+      #            type: http
+      #            http: 'http://localhost:{{ harbor_statsd_exporter_port }}/metrics'

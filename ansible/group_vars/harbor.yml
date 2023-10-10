@@ -1,0 +1,23 @@
+---
+harbor_domain: 'harbor.status.im'
+
+harbor_admin_password: '{{lookup("passwordstore", "services/harbor/password")}}'
+harbor_csrf_key: '{{lookup("passwordstore", "services/harbor/csrf_key")}}'
+harbor_registry_username: admin_harbor
+harbor_registry_password: '{{lookup("passwordstore", "services/harbor/registry/password")}}'
+
+harbor_db_username: admin_harbor 
+harbor_db_password: '{{lookup("passwordstore", "services/harbor/database/password")}}'
+
+harbor_core_secret: '{{lookup("passwordstore", "services/harbor/core/secret")}}'
+harbor_core_secretkey: '{{ lookup("passwordstore", "services/harbor/core/secretkey")}}'
+
+harbor_job_service_secret: '{{lookup("passwordstore", "services/harbor/jobservice/secret")}}'
+
+open_ports_default_comment: 'harbor'
+open_ports_default_chain: 'SERVICES'
+
+open_ports_list:
+  - { port: '{{ harbor_proxy_cont_port }}', chain: 'VPN', ipset: 'proxy.misc' }
+  - { port: '{{ harbor_proxy_cont_port_metrics }}',  chain: 'VPN', ipset: 'metrics.hq' }
+

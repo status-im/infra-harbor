@@ -1,0 +1,101 @@
+---
+harbor_service_name: 'harbor'
+harbor_service_path: '/docker/harbor'
+harbor_service_config_path: '/docker/harbor/config'
+harbor_user: dockremap
+harbor_group: docker
+# harbor_admin_password: ~
+# harbor_domain: ~
+# habor_csrf_key: ~
+# Registry
+harbor_registry_cont_name: '{{ harbor_service_name}}-registry'
+harbor_registry_cont_tag: 'v2.7.3'
+harbor_registry_cont_image: 'goharbor/registry-photon:{{ harbor_registry_cont_tag }}'
+harbor_registry_cont_vol_data: '{{ harbor_service_path }}/registry/data'
+harbor_registry_cont_vol_config: '{{ harbor_service_path}}/config/registry'
+harbor_registry_cont_port: 5000
+harbor_registry_cont_uid: 10000
+harbor_registry_host_uid: '{{ 100000 + harbor_registry_cont_uid | int }}'
+#harbor_registry_username: ~
+#harbor_registry_password: ~
+# Registryctl
+harbor_registryctl_cont_name: '{{ harbor_service_name }}-registryctl'
+harbor_registryctl_cont_tag: 'v2.7.3'
+harbor_registryctl_cont_image: 'goharbor/harbor-registryctl:{{ harbor_registryctl_cont_tag }}'
+harbor_registryctl_cont_vol_config: '{{ harbor_service_path}}/config/registryctl'
+harbor_registryctl_cont_uid: 10000
+harbor_registryctl_host_uid: '{{ 100000 + harbor_registryctl_cont_uid | int }}'
+
+# Database
+harbor_db_cont_name: '{{  harbor_service_name }}-database'
+harbor_db_cont_tag: 'v2.7.3'
+harbor_db_cont_image: 'goharbor/harbor-db:{{ harbor_db_cont_tag }}'
+harbor_db_cont_vol_data: '{{harbor_service_path}}/db/data'
+harbor_db_cont_vol_config: '{{ harbor_service_path }}/config/db'
+harbor_db_cont_port: '5432'
+harbor_db_cont_uid: 999
+harbor_db_host_uid: '{{ 100000 + harbor_db_cont_uid | int }}'
+#harbor_db_username: ~
+#harbor_db_password: ~
+harbor_db_database: registry
+
+# Core
+harbor_core_cont_name: '{{ harbor_service_name}}-core'
+harbor_core_cont_tag: 'v2.7.3'
+harbor_core_cont_image: 'goharbor/harbor-core:{{ harbor_core_cont_tag }}'
+harbor_core_cont_vol_ca: '{{ harbor_service_path}}/core/ca'
+harbor_core_cont_vol_config: '{{ harbor_service_path}}/config/core'
+harbor_core_cont_vol_data: '{{ harbor_service_path }}/core/data'
+#harbor_core_secret: ~
+#harbor_core_secretkey: ~
+harbor_core_cont_uid: 10000
+harbor_core_host_uid: '{{ 100000 + harbor_core_cont_uid | int }}'
+
+# Portal
+harbor_portal_cont_name: '{{ harbor_service_name}}-portal'
+harbor_portal_cont_tag: 'v2.7.3'
+harbor_portal_cont_image: 'goharbor/harbor-portal:{{ harbor_portal_cont_tag }}'
+harbor_portal_cont_vol_config: '{{ harbor_service_path }}/config/portal'
+harbor_portal_cont_uid: 10000
+harbor_portal_host_uid: '{{ 100000 + harbor_portal_cont_uid | int }}'
+
+# JobService
+harbor_job_service_cont_name: '{{ harbor_service_name}}-jobservice'
+harbor_job_service_cont_tag: 'v2.7.3'
+harbor_job_service_cont_image: 'goharbor/harbor-jobservice:{{ harbor_job_service_cont_tag }}'
+harbor_job_service_cont_vol_jobs: '{{ harbor_service_path }}/jobs'
+harbor_job_service_cont_vol_config: '{{ harbor_service_path }}/config/jobs'
+#harbor_job_service_secret: ~
+harbor_job_service_cont_uid: 10000
+harbor_job_service_host_uid: '{{ 100000 + harbor_job_service_cont_uid | int }}'
+# Proxy
+harbor_proxy_cont_name: '{{ harbor_service_name}}-proxy'
+harbor_proxy_cont_tag: 'v2.7.3'
+harbor_proxy_cont_image: 'goharbor/nginx-photon:{{ harbor_job_service_cont_tag }}'
+harbor_proxy_cont_vol_config: '{{ harbor_service_path}}/config/proxy'
+harbor_proxy_cont_port: 80
+harbor_proxy_cont_port_metrics: 9090
+harbor_proxy_cont_uid: 10000
+harbor_proxy_host_uid: '{{ 100000 + harbor_proxy_cont_uid | int }}'
+
+# Cache
+harbor_cache_cont_name: '{{ harbor_service_name }}-cache'
+harbor_cache_cont_tag: 'v2.7.3'
+harbor_cache_cont_image: 'goharbor/redis-photon:{{ harbor_cache_cont_tag }}'
+harbor_cache_cont_vol_data: '{{ harbor_service_path}}/cache/'
+harbor_cache_cont_port: 6379
+harbor_cache_cont_uid: 999
+harbor_cache_host_uid: '{{ 100000 + harbor_cache_cont_uid | int }}'
+
+# Exporter
+harbor_exporter_cont_name: '{{ harbor_service_name}}-exporter'
+harbor_exporter_cont_tag: 'v2.7.3'
+harbor_exporter_cont_image: 'goharbor/harbor-exporter:{{ harbor_exporter_cont_tag }}'
+harbor_exporter_cont_vol_config: '{{ harbor_service_path }}/config/exporter'
+
+
+harbor_consul_tags: ['harbor', 'registry', 'ssl-proxy-backend']
+compose_restart: false
+compose_state: 'present'
+compose_recreate: 'smart'
+

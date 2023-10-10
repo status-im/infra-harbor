@@ -1,0 +1,137 @@
+---
+# vim: ft=yaml
+version: '2.3'
+services:
+  registry:
+    image: '{{ harbor_registry_cont_image }}'
+    container_name: '{{ harbor_registry_cont_name }}'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    volumes:
+      - '{{ harbor_registry_cont_vol_data }}:/storage:z'
+      - '{{ harbor_registry_cont_vol_config }}:/etc/registry/:z'
+
+  registryctl:
+    image: '{{ harbor_registryctl_cont_image}}'
+    container_name: '{{ harbor_registryctl_cont_name}}'
+    env_file:
+      - '{{ harbor_registryctl_cont_vol_config }}/env'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    volumes:
+      - '{{ harbor_registry_cont_vol_data }}:/storage:z'
+      - '{{ harbor_registry_cont_vol_config }}:/etc/registry/:z'
+      - '{{ harbor_registryctl_cont_vol_config}}/config.yml:/etc/gistryctl/config.yml'
+
+  postgresql:
+    image: '{{ harbor_db_cont_image }}'
+    container_name: '{{ harbor_db_cont_name}}'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    volumes:
+      - '{{ harbor_db_cont_vol_data }}:/var/lib/postgresql/data:z'
+    env_file:
+      - '{{ harbor_db_cont_vol_config}}/env'
+
+  core:
+    image: '{{ harbor_core_cont_image }}'
+    container_name: '{{ harbor_core_cont_name }}'
+    env_file:
+      - '{{ harbor_core_cont_vol_config }}/env'
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+    volumes:
+      - '{{ harbor_registry_cont_vol_data }}:/data/registry'
+      - '{{ harbor_core_cont_vol_config }}/app.conf:/etc/core/app.conf'
+      - '{{ harbor_core_cont_vol_data }}/secretkey:/etc/core/key'
+    depends_on:
+      - registry
+      - redis
+      - postgresql
+
+  portal:
+    image: '{{ harbor_portal_cont_image }}'
+    container_name: '{{ harbor_portal_cont_name }}'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    volumes:
+      - '{{ harbor_portal_cont_vol_config }}/nginx.conf:/etc/nginx/nginx.conf'
+
+  jobservice:
+    image: '{{harbor_job_service_cont_image }}'
+    container_name: '{{ harbor_job_service_cont_name }}'
+    env_file:
+      - '{{ harbor_job_service_cont_vol_config }}/env'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    volumes:
+      - '{{ harbor_job_service_cont_vol_jobs }}:/var/log/jobs:z'
+      - '{{ harbor_job_service_cont_vol_config }}/config.yml:/etc/jobservice/config.yml'
+    depends_on:
+      - core
+
+  redis:
+    image: '{{ harbor_cache_cont_image }}'
+    container_name: '{{ harbor_cache_cont_name }}'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    volumes:
+      - '{{ harbor_cache_cont_vol_data }}:/var/lib/redis'
+
+  proxy:
+    image: '{{ harbor_proxy_cont_image }}'
+    container_name: '{{ harbor_proxy_cont_name }}'
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    volumes:
+      - '{{ harbor_proxy_cont_vol_config }}:/etc/nginx:z'
+    ports:
+      - '{{ harbor_proxy_cont_port }}:80'
+      - '{{ harbor_proxy_cont_port_metrics }}:9090'
+    depends_on:
+      - registry
+      - core
+      - portal
+
+  exporter:
+    image: '{{ harbor_exporter_cont_image }}'
+    container_name: '{{ harbor_exporter_cont_name }}'
+    env_file:
+      - '{{ harbor_exporter_cont_vol_config}}/env'
+    depends_on:
+      - core
+      - postgresql
