@@ -16,13 +16,13 @@
             name: harbor Healthcheck
             type: http
             http: 'http://localhost:{{ harbor_proxy_cont_port }}/health'
-      #      - name: '{{ harbor_service_name }}-metrics'
-      #        id: '{{ harbor_service_name}}-metrics'
-      #        tags: '{{ harbor_consul_tags }}'
-      #        port: '{{ harbor_statsd_exporter_port }}'
-      #        address: '{{ ansible_local.wireguard.vpn_ip }}'
-      #        checks:
-      #          - id: '{{ harbor_service_name }}-metrics'
-      #            name: harbor metrics
-      #            type: http
-      #            http: 'http://localhost:{{ harbor_statsd_exporter_port }}/metrics'
+      - name: '{{ harbor_service_name }}-metrics'
+        id: '{{ harbor_service_name}}-metrics'
+        tags: ['harbor', 'metrics']
+        port: '{{ harbor_proxy_cont_port_metrics }}'
+        address: '{{ ansible_local.wireguard.vpn_ip }}'
+        checks:
+          - id: '{{ harbor_service_name }}-metrics'
+            name: harbor metrics
+            type: http
+            http: 'http://localhost:{{ harbor_proxy_cont_port_metrics }}/metrics'
