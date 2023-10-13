@@ -55,6 +55,14 @@
     - { src: 'config/portal/nginx.conf.j2',       dest: '{{ harbor_portal_cont_vol_config }}/nginx.conf',       user: '{{ harbor_portal_host_uid }}'      }
     - { src: 'config/registry/key.j2',            dest: '{{ harbor_registry_cont_vol_config }}/key',            user: '{{ harbor_registry_host_uid }}'    }
 
+- name: Create file for harbor-core
+  file:
+    path: '{{ harbor_core_cont_vol_data }}/secretkey'
+    owner: '{{ harbor_core_host_uid }}'
+    group: '{{ harbor_group }}'
+    state: touch
+    mode: 0640
+
 - name: Create containers
   docker_compose:
     project_src: '{{ harbor_service_path }}'

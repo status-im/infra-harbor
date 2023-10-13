@@ -29,7 +29,7 @@ services:
     volumes:
       - '{{ harbor_registry_cont_vol_data }}:/storage:z'
       - '{{ harbor_registry_cont_vol_config }}:/etc/registry/:z'
-      - '{{ harbor_registryctl_cont_vol_config}}/config.yml:/etc/gistryctl/config.yml'
+      - '{{ harbor_registryctl_cont_vol_config}}/config.yml:/etc/registryctl/config.yml'
 
   postgresql:
     image: '{{ harbor_db_cont_image }}'
