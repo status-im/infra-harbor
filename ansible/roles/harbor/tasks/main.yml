@@ -3,3 +3,5 @@
   tags: ['role::harbor', 'role::harbor:container']
 - import_tasks: consul.yml
   tags: ['role::harbor', 'role::harbor:consul']
+- import_tasks: config.yml
+  tags: ['role::harbor', 'role::harbor:config']

@@ -3,6 +3,8 @@ harbor_domain: 'harbor.status.im'
 
 harbor_admin_password: '{{lookup("passwordstore", "services/harbor/password")}}'
 harbor_csrf_key: '{{lookup("passwordstore", "services/harbor/csrf_key")}}'
+harbor_private_key: '{{ lookup("passwordstore", "services/harbor/private_key.pem returnall=true")}}'
+harbor_root_cert: '{{ lookup("passwordstore", "services/harbor/root.crt returnall=true")}}'
 harbor_registry_username: admin_harbor
 harbor_registry_password: '{{lookup("passwordstore", "services/harbor/registry/password")}}'
 
@@ -13,6 +15,10 @@ harbor_core_secret: '{{lookup("passwordstore", "services/harbor/core/secret")}}'
 harbor_core_secretkey: '{{ lookup("passwordstore", "services/harbor/core/secretkey")}}'
 
 harbor_job_service_secret: '{{lookup("passwordstore", "services/harbor/jobservice/secret")}}'
+
+harbor_keycloak_endpoint: 'https://auth.logos.co/realms/logos-co'
+harbor_keycloak_client_id: 'harbor'
+harbor_keycloak_client_secret: '{{ lookup("passwordstore", "services/harbor/keycloak_secret" )}}'
 
 open_ports_default_comment: 'harbor'
 open_ports_default_chain: 'SERVICES'

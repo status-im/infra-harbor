@@ -12,8 +12,11 @@ services:
       - SETGID
       - SETUID
     volumes:
-      - '{{ harbor_registry_cont_vol_data }}:/storage:z'
+      - '{{ harbor_core_cont_vol_data }}/registry:/storage:z'
       - '{{ harbor_registry_cont_vol_config }}:/etc/registry/:z'
+      #      - type: bind
+#  source: '{{ harbor_registry_cont_vol_cert }}/root.crt'
+#        target: '/etc/registry/root.crt'
 
   registryctl:
     image: '{{ harbor_registryctl_cont_image}}'
@@ -57,9 +60,10 @@ services:
       - SETGID
       - SETUID
     volumes:
-      - '{{ harbor_registry_cont_vol_data }}:/data/registry'
+      - '{{ harbor_core_cont_vol_data }}:/data:z'
       - '{{ harbor_core_cont_vol_config }}/app.conf:/etc/core/app.conf'
-      - '{{ harbor_core_cont_vol_data }}/secretkey:/etc/core/key'
+      - '{{ harbor_core_cont_vol_secret }}/private_key.pem:/etc/core/private_key.pem'
+      - '{{ harbor_core_cont_vol_keys }}/secretkey:/etc/core/key'
     depends_on:
       - registry
       - redis

@@ -1,0 +1,19 @@
+---
+- name: Configure OIDC
+  uri: 
+    url: 'http://localhost:80/api/v2.0/configurations'
+    method: PUT
+    status_code: 200
+    user: '{{ harbor_admin_username | mandatory }}'
+    password: '{{ harbor_admin_password | mandatory }}'
+    force_basic_auth: true
+    body_format: 'json'
+    body: '{
+            "oidc_name": "keycloak", 
+            "oidc_endpoint": "{{ harbor_keycloak_endpoint | mandatory }}", 
+            "oidc_client_id": "{{ harbor_keycloak_client_id | mandatory }}", 
+            "oidc_client_secret": "{{ harbor_keycloak_client_secret | mandatory}}",
+            "oidc_scope": "openid,profile,email,offline_access", 
+            "oidc_admin_group": "/admins", 
+            "oidc_group_claim": "groups"
+          }'

@@ -14,8 +14,8 @@
         checks:
           - id: '{{ harbor_service_name }}'
             name: harbor Healthcheck
-            type: http
-            http: 'http://localhost:{{ harbor_proxy_cont_port }}/health'
+            type: tcp
+            tcp: 'localhost:{{ harbor_proxy_cont_port }}'
       - name: '{{ harbor_service_name }}-metrics'
         id: '{{ harbor_service_name}}-metrics'
         tags: ['harbor', 'metrics']

@@ -4,15 +4,19 @@ harbor_service_path: '/docker/harbor'
 harbor_service_config_path: '/docker/harbor/config'
 harbor_user: dockremap
 harbor_group: docker
+harbor_admin_username: admin
 # harbor_admin_password: ~
 # harbor_domain: ~
 # habor_csrf_key: ~
+# harbor_private_key:~
+# harbor_root_cert: ~
 # Registry
 harbor_registry_cont_name: '{{ harbor_service_name}}-registry'
 harbor_registry_cont_tag: 'v2.7.3'
 harbor_registry_cont_image: 'goharbor/registry-photon:{{ harbor_registry_cont_tag }}'
 harbor_registry_cont_vol_data: '{{ harbor_service_path }}/registry/data'
 harbor_registry_cont_vol_config: '{{ harbor_service_path}}/config/registry'
+harbor_registry_cont_vol_cert: '{{ harbor_core_cont_vol_data}}/secret/registry'
 harbor_registry_cont_port: 5000
 harbor_registry_cont_uid: 10000
 harbor_registry_host_uid: '{{ 100000 + harbor_registry_cont_uid | int }}'
@@ -46,6 +50,8 @@ harbor_core_cont_image: 'goharbor/harbor-core:{{ harbor_core_cont_tag }}'
 harbor_core_cont_vol_ca: '{{ harbor_service_path}}/core/ca'
 harbor_core_cont_vol_config: '{{ harbor_service_path}}/config/core'
 harbor_core_cont_vol_data: '{{ harbor_service_path }}/core/data'
+harbor_core_cont_vol_secret: '{{ harbor_core_cont_vol_data }}/secret/core'
+harbor_core_cont_vol_keys: '{{ harbor_core_cont_vol_data }}/secret/keys'
 #harbor_core_secret: ~
 #harbor_core_secretkey: ~
 harbor_core_cont_uid: 10000
@@ -92,6 +98,11 @@ harbor_exporter_cont_name: '{{ harbor_service_name}}-exporter'
 harbor_exporter_cont_tag: 'v2.7.3'
 harbor_exporter_cont_image: 'goharbor/harbor-exporter:{{ harbor_exporter_cont_tag }}'
 harbor_exporter_cont_vol_config: '{{ harbor_service_path }}/config/exporter'
+
+# Config
+# harbor_keycloak_endpoint: ~
+# harbor_keycloak_client_id: ~
+# harbor_keycloak_client_secret: ~
 
 
 harbor_consul_tags: ['harbor', 'registry', 'ssl-proxy-backend']

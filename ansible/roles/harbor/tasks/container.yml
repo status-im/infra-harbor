@@ -10,7 +10,10 @@
     - { path: '{{ harbor_service_config_path }}'          }
     - { path: '{{ harbor_cache_cont_vol_data }}'          , user: '{{ harbor_cache_host_uid }}'       }
     - { path: '{{ harbor_core_cont_vol_config }}'         , user: '{{ harbor_core_host_uid }}'        }
-    - { path: '{{ harbor_core_cont_vol_data }}'         , user: '{{ harbor_core_host_uid }}'        }
+    - { path: '{{ harbor_core_cont_vol_data }}'           , user: '{{ harbor_core_host_uid }}'        }
+    - { path: '{{ harbor_core_cont_vol_keys }}'           , user: '{{ harbor_core_host_uid }}'        }
+    - { path: '{{ harbor_core_cont_vol_secret }}'           , user: '{{ harbor_core_host_uid }}'        }
+    - { path: '{{ harbor_core_cont_vol_data }}/registry'  , user: '{{ harbor_core_host_uid }}'        }
     - { path: '{{ harbor_portal_cont_vol_config }}'       , user: '{{ harbor_portal_host_uid }}'      }
     - { path: '{{ harbor_job_service_cont_vol_config }}'  }
     - { path: '{{ harbor_registryctl_cont_vol_config }}'  , user: '{{ harbor_registryctl_host_uid }}' }
@@ -19,7 +22,8 @@
     - { path: '{{ harbor_job_service_cont_vol_jobs }}'    }
     - { path: '{{ harbor_proxy_cont_vol_config }}'        , user: '{{ harbor_proxy_host_uid }}'       }
     - { path: '{{ harbor_registry_cont_vol_data }}'       , user: '{{ harbor_registry_host_uid }}'    }
-    - { path: '{{harbor_registry_cont_vol_config }}'      , user: '{{ harbor_registry_host_uid }}'    }
+    - { path: '{{ harbor_registry_cont_vol_config }}'     , user: '{{ harbor_registry_host_uid }}'    }
+    - { path: '{{ harbor_registry_cont_vol_cert }}'       , user: '{{ harbor_registry_host_uid }}'    }
     - { path: '{{ harbor_db_cont_vol_config }}'           , user: '{{ harbor_db_host_uid }}'          }
     - { path: '{{ harbor_db_cont_vol_data }}'             , user: '{{ harbor_db_host_uid}}'           }
 
@@ -42,25 +46,48 @@
   with_items: 
     - { src: 'config/core/env.j2',                dest: '{{ harbor_core_cont_vol_config }}/env',                user: '{{ harbor_core_host_uid }}'        }
     - { src: 'config/core/app.conf.j2',           dest: '{{ harbor_core_cont_vol_config }}/app.conf',           user: '{{ harbor_core_host_uid }}'        }
-    - { src: 'config/core/secretkey.j2',          dest: '{{ harbor_core_cont_vol_data }}/secretkey',            user: '{{ harbor_core_host_uid }}'        }
+    - { src: 'config/core/secretkey.j2',          dest: '{{ harbor_core_cont_vol_keys }}/secretkey',            user: '{{ harbor_core_host_uid }}'        }
     - { src: 'config/db/env.j2',                  dest: '{{ harbor_db_cont_vol_config }}/env'                   }
     - { src: 'config/registryctl/env.j2',         dest: '{{ harbor_registryctl_cont_vol_config }}/env',         user: '{{ harbor_registryctl_host_uid}}'  }
     - { src: 'config/registryctl/config.yml.j2',  dest: '{{ harbor_registryctl_cont_vol_config }}/config.yml',  user: '{{ harbor_registryctl_host_uid}}'  }
     - { src: 'config/registry/config.yml.j2',     dest: '{{ harbor_registry_cont_vol_config }}/config.yml',     user: '{{ harbor_registry_host_uid }}'    }
-    - { src: 'config/registry/passwd.j2',         dest: '{{ harbor_registry_cont_vol_config }}/passwd',         user: '{{ harbor_registry_host_uid }}'    } 
     - { src: 'config/jobservice/env.j2',          dest: '{{ harbor_job_service_cont_vol_config }}/env',         user: '{{ harbor_job_service_host_uid }}' }
     - { src: 'config/jobservice/config.yml.j2',   dest: '{{ harbor_job_service_cont_vol_config }}/config.yml',  user: '{{ harbor_job_service_host_uid }}' }
     - { src: 'config/exporter/env.j2',            dest: '{{ harbor_exporter_cont_vol_config }}/env'             }
     - { src: 'config/proxy/nginx.conf.j2',        dest: '{{ harbor_proxy_cont_vol_config }}/nginx.conf',        user: '{{ harbor_proxy_host_uid }}'       }
     - { src: 'config/portal/nginx.conf.j2',       dest: '{{ harbor_portal_cont_vol_config }}/nginx.conf',       user: '{{ harbor_portal_host_uid }}'      }
-    - { src: 'config/registry/key.j2',            dest: '{{ harbor_registry_cont_vol_config }}/key',            user: '{{ harbor_registry_host_uid }}'    }
 
-- name: Create file for harbor-core
-  file:
-    path: '{{ harbor_core_cont_vol_data }}/secretkey'
-    owner: '{{ harbor_core_host_uid }}'
+#- name: Create file for harbor-core
+#  file:
+#    path: '{{ harbor_core_cont_vol_keys }}/secretkey'
+#    owner: '{{ harbor_core_host_uid }}'
+#    group: '{{ harbor_group }}'
+#    state: touch
+#    mode: 0640
+
+- name: Create root cert and private key
+  copy:
+    dest: '{{ item.dest }}'
+    content: '{{ item.content}}'
+    owner: '{{ item.user }}'
     group: '{{ harbor_group }}'
-    state: touch
+    mode: 0640
+  with_items:
+    - { dest: '{{ harbor_core_cont_vol_secret }}/private_key.pem',   content: '{{ harbor_private_key | mandatory}}',   user: '{{ harbor_core_host_uid }}'     }
+    - { dest: '{{ harbor_registry_cont_vol_cert }}/root.crt',        content: '{{ harbor_root_cert | mandatory }}',    user: '{{ harbor_registry_host_uid }}' }
+    - { dest: '{{ harbor_registry_cont_vol_config }}/root.crt',      content: '{{ harbor_root_cert | mandatory }}',    user: '{{ harbor_registry_host_uid }}' }
+
+- name: Install pip package for htpasswd
+  pip:
+    name: 'passlib'
+
+- name: Create passwd file
+  community.general.htpasswd:
+    path: '{{ harbor_registry_cont_vol_config }}/passwd'
+    name: '{{ harbor_registry_username }}'
+    password: '{{ harbor_registry_password | mandatory }}'
+    owner: '{{ harbor_registry_host_uid }}'
+    group: '{{ harbor_group }}'
     mode: 0640
 
 - name: Create containers
